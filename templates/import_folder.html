@@ -1,0 +1,27 @@
+<!-- templates/import_folder.html -->
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="form-container">
+        <h2>フォルダからPDFをインポート</h2>
+        <form action="/import-folder" method="post">
+            <div class="form-group">
+                <label for="folder_path">フォルダのパス</label>
+                <input type="text" id="folder_path" name="folder_path" required placeholder="例: C:\Documents\PDFs">
+            </div>
+            <div class="form-group">
+                <label for="tags">すべてのファイルに適用するタグ（カンマ区切り）</label>
+                <input type="text" id="tags" name="tags" placeholder="例: インポート, バックアップ">
+            </div>
+            <button type="submit">インポート</button>
+        </form>
+        <div style="margin-top: 1rem">
+            <p><strong>注意:</strong></p>
+            <ul>
+                <li>指定したフォルダ内のすべてのPDFファイルがインポートされます</li>
+                <li>ファイル名がタイトルとして使用されます</li>
+                <li>すでに同じ名前のファイルが存在する場合は、自動的に名前が変更されます</li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,27 @@
+<!-- templates/upload.html -->
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="form-container">
+        <h2>ドキュメントのアップロード</h2>
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="file">PDFファイル</label>
+                <input type="file" id="file" name="file" accept=".pdf" required>
+            </div>
+            <div class="form-group">
+                <label for="title">タイトル</label>
+                <input type="text" id="title" name="title" required>
+            </div>
+            <div class="form-group">
+                <label for="description">説明</label>
+                <textarea id="description" name="description" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="tags">タグ（カンマ区切り）</label>
+                <input type="text" id="tags" name="tags" placeholder="例: プロジェクト, 会議, 報告">
+            </div>
+            <button type="submit">アップロード</button>
+        </form>
+    </div>
+{% endblock %}

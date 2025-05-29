@@ -1,0 +1,182 @@
+<!-- templates/view.html -->
+{% extends "layout.html" %}
+
+{% block title %}{{ document.title }} - PDF Viewer (読み取り専用){% endblock %}
+
+{% block head %}
+<style>
+    .pdf-viewer-container {
+        margin: 20px 0;
+    }
+    .header {
+        margin-bottom: 20px;
+        background-color: white;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .pdf-container {
+        width: 95%; /* 画面幅の95% */
+        max-width: 1200px; /* 最大幅制限 */
+        height: 85vh; /* ビューポート高さの85% */
+        min-height: 600px; /* 最小高さ */
+        margin: 0 auto; /* 中央寄せ */
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        background-color: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        position: relative;
+    }
+    .pdf-embed {
+        width: 100%;
+        height: 100%;
+        border: none;
+        border-radius: 5px;
+    }
+    .readonly-notice {
+        background-color: #e3f2fd;
+        border-left: 4px solid #2196f3;
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 0 5px 5px 0;
+    }
+    .fallback-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        padding: 20px;
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 5px;
+        max-width: 400px;
+        display: none; /* Initially hidden */
+    }
+    .document-info {
+        margin-bottom: 15px;
+    }
+    .document-info p, .document-info div {
+        margin-bottom: 8px; /* Added margin for better spacing */
+    }
+    .filename-display { /* Style for filename */
+        font-style: italic;
+        color: #555;
+    }
+    .tags {
+        margin-top: 10px;
+    }
+    .tag {
+        display: inline-block;
+        background-color: #e0e0e0;
+        padding: 3px 8px;
+        margin-right: 5px;
+        border-radius: 3px;
+        font-size: 0.9em;
+    }
+    .action-buttons {
+        margin-bottom: 15px;
+    }
+    .action-buttons .button, .action-buttons button { /* Ensure buttons in this div use global button style or specific ones */
+        margin-right: 10px;
+        text-decoration: none; /* For <a> styled as button */
+        padding: 0.5rem 1rem; /* Consistent padding */
+        border-radius: 3px;   /* Consistent radius */
+        color: white;         /* Default text color for buttons */
+        cursor: pointer;
+        border: none; /* For actual button elements */
+    }
+    .action-buttons .edit-button {
+        background-color: #2ecc71; /* Green for edit */
+    }
+    .action-buttons .delete-button {
+        background-color: #e74c3c; /* Red for delete */
+    }
+    .back-button { /* Already styled, ensure consistency if needed */
+        text-decoration: none;
+        background-color: #007bff; /* Default back button color */
+        color: white;
+        padding: 8px 15px;
+        border-radius: 3px;
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+    .back-button:hover {
+        background-color: #0056b3;
+        color: white;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pdf-viewer-container">
+    <div class="header">
+        <div class="readonly-notice">
+            <strong>📖 読み取り専用モード</strong> - このPDFは表示のみ可能です
+        </div>
+        
+        <div class="action-buttons">
+            <a href="{{ url_for('index') }}" class="back-button">← 戻る</a>
+            <!-- Editor Actions: In a real app, conditionally show these based on user role -->
+            <a href="{{ url_for('edit_document', doc_id=document.id) }}" class="button edit-button">編集</a>
+            <form method="POST" action="{{ url_for('delete_document', doc_id=document.id) }}" style="display: inline-block;" onsubmit="return confirm('本当にこのドキュメント「{{ document.title }}」を削除しますか？この操作は元に戻せません。');">
+                <button type="submit" class="button delete-button">削除</button>
+            </form>
+        </div>
+        
+        <h1>{{ document.title }}</h1>
+        
+        <div class="document-info">
+            <p><strong>説明:</strong> {{ document.description if document.description else 'N/A' }}</p>
+            <p><strong>表示ファイル名:</strong> <span class="filename-display">{{ document.filename }}</span></p>
+            {% if document.tags %}
+            <div class="tags">
+                <strong>タグ:</strong>
+                {% for tag in document.tags %}
+                <span class="tag">{{ tag }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="pdf-container">
+        <embed src="{{ url_for('serve_pdf', filename=document.filename) }}" 
+               type="application/pdf" 
+               class="pdf-embed"
+               title="{{ document.title }}"
+               width="90%"
+               height="90%"
+               >
+        
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const embed = document.querySelector('.pdf-embed');
+    const fallback = document.querySelector('.fallback-content');
+    
+    if (embed) {
+        embed.addEventListener('load', function() {
+            // Check if the embed actually loaded content. Some browsers might fire 'load' even for errors.
+            // A common check is for offsetHeight, but it might not be reliable immediately.
+            // For now, we assume 'load' means success.
+        });
+        embed.addEventListener('error', function() {
+            if (fallback) fallback.style.display = 'block';
+        });
+
+        // Fallback check if neither load nor error fires reliably or quickly
+        setTimeout(function() {
+            // A more robust check might be needed here depending on browser behavior
+            // For example, checking if the embed's contentDocument is accessible and has content
+            if (embed.offsetHeight === 0 && fallback) { // Simple check
+                 // fallback.style.display = 'block'; // This might be too aggressive
+            }
+        }, 3000);
+    }
+});
+</script>
+{% endblock %}

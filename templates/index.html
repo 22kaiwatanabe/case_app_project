@@ -1,0 +1,30 @@
+<!-- templates/index.html -->
+{% extends "layout.html" %}
+
+{% block content %}
+    {% if tags %}
+    <div class="filter-container">
+        <a href="/" class="filter-tag {% if not request.args.get('tag') %}active{% endif %}">すべて</a>
+        {% for tag in tags %}
+            <a href="/?tag={{ tag }}" class="filter-tag {% if request.args.get('tag') == tag %}active{% endif %}">{{ tag }}</a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="documents-container">
+        {% for doc in documents %}
+            <div class="document-card" data-id="{{ doc.id }}">
+                <div class="document-title">{{ doc.title }}</div>
+                <div class="document-description">{{ doc.description }}</div>
+                <div class="document-tags">
+                    {% for tag in doc.tags %}
+                        <span class="tag">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <p>ドキュメントがありません。「アップロード」メニューからPDFをアップロードしてください。</p>
+        {% endfor %}
+    </div>
+{% endblock %}
+

@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}ドキュメント編集 - {{ document.title }}{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <h2>ドキュメントの編集</h2>
+        <div style="margin-bottom: 1rem; padding: 10px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px;">
+            <strong>編集中:</strong> {{ document.title }}
+        </div>
+        
+        <form method="post" action="{{ url_for('edit_document', doc_id=document.id) }}">
+            <div class="form-group">
+                <label for="title">タイトル</label>
+                <input type="text" id="title" name="title" value="{{ document.title }}" required>
+            </div>
+            <div class="form-group">
+                <label for="description">説明</label>
+                <textarea id="description" name="description" rows="3">{{ document.description }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="tags">タグ（カンマ区切り）</label>
+                <input type="text" id="tags" name="tags" value="{{ document.tags|join(', ') }}" placeholder="例: プロジェクト, 会議, 報告">
+            </div>
+            <div class="form-group">
+                <label>ファイル名（変更不可）</label>
+                <input type="text" value="{{ document.filename }}" disabled style="background-color: #f5f5f5; color: #666;">
+            </div>
+            
+            <div style="margin-top: 1.5rem;">
+                <button type="submit">更新</button>
+                <a href="{{ url_for('view_document', doc_id=document.id) }}" style="margin-left: 10px; background-color: #6c757d; color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 3px; display: inline-block;">キャンセル</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

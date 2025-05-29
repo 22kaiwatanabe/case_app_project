@@ -1,0 +1,4 @@
+uploads/
+# Ignore the uploads directory
+data/
+# Ignore the data directory
